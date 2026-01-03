@@ -95,7 +95,7 @@ const Diary = () => {
   };
 
   return (
-    <AppLayout title="Daily Log">
+    <AppLayout title="Capture you. Digital you. Empowered you.">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-7xl">
         {/* Zone A: Calendar */}
         <Card className="animate-fade-in">
@@ -254,33 +254,10 @@ const Diary = () => {
         {/* Zone E: Reflection of the day */}
         <Card className="lg:col-span-2 animate-fade-in" style={{ animationDelay: "0.25s" }}>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-primary" />
-                Reflection of the day
-              </CardTitle>
-              <Button
-                variant={isRecording ? "destructive" : "outline"}
-                size="sm"
-                onClick={toggleRecording}
-                className={cn(
-                  "gap-2 transition-all",
-                  isRecording && "animate-pulse"
-                )}
-              >
-                {isRecording ? (
-                  <>
-                    <MicOff className="w-4 h-4" />
-                    Stop
-                  </>
-                ) : (
-                  <>
-                    <Mic className="w-4 h-4" />
-                    Record
-                  </>
-                )}
-              </Button>
-            </div>
+            <CardTitle className="text-base flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-primary" />
+              Reflection of the day
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Textarea
@@ -289,23 +266,43 @@ const Diary = () => {
               onChange={(e) => setReflection(e.target.value)}
               className="min-h-[100px] bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/50 resize-none"
             />
-            <p className="mt-2 text-xs text-muted-foreground">
-              Click the record button to speak your reflection
-            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Floating Save Button */}
-      <Button
-        variant="floating"
-        size="lg"
-        onClick={handleSave}
-        className="fixed bottom-6 right-6 rounded-full shadow-xl gap-2 z-50"
-      >
-        <Save className="w-4 h-4" />
-        Save
-      </Button>
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 flex gap-3 z-50">
+        <Button
+          variant={isRecording ? "destructive" : "outline"}
+          size="lg"
+          onClick={toggleRecording}
+          className={cn(
+            "rounded-full shadow-xl gap-2",
+            isRecording && "animate-pulse"
+          )}
+        >
+          {isRecording ? (
+            <>
+              <MicOff className="w-4 h-4" />
+              Stop
+            </>
+          ) : (
+            <>
+              <Mic className="w-4 h-4" />
+              Dictate
+            </>
+          )}
+        </Button>
+        <Button
+          variant="floating"
+          size="lg"
+          onClick={handleSave}
+          className="rounded-full shadow-xl gap-2"
+        >
+          <Save className="w-4 h-4" />
+          Save
+        </Button>
+      </div>
     </AppLayout>
   );
 };
