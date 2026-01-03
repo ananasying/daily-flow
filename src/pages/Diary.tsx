@@ -4,14 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import JournalEntry from "@/components/diary/JournalEntry";
 import { 
   Plus, 
   Save, 
   Moon, 
-  Info, 
   CheckSquare, 
   ListChecks,
   MessageSquare,
@@ -115,38 +113,17 @@ const Diary = () => {
           </CardContent>
         </Card>
 
-        {/* Zone D: What I Done (Large, spans 2 rows on lg) */}
-        <Card className="lg:col-span-2 lg:row-span-2 flex flex-col animate-fade-in" style={{ animationDelay: "0.1s" }}>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <ListChecks className="w-4 h-4 text-primary" />
-                What I Done
-              </CardTitle>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="iconSm" className="text-muted-foreground">
-                    <Info className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-sm">
-                    Track your accomplishments. What did you achieve today? 
-                    List your completed tasks and activities.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </CardHeader>
-          <CardContent className="flex-1 pb-5">
-            <Textarea
-              placeholder="What did you accomplish today? List your achievements and completed activities..."
-              value={whatIDone}
-              onChange={(e) => setWhatIDone(e.target.value)}
-              className="min-h-[200px] lg:min-h-[300px] resize-none border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/50"
-            />
-          </CardContent>
-        </Card>
+        {/* Zone D: What I Done */}
+        <JournalEntry
+          title="What I Done"
+          icon={ListChecks}
+          placeholder="What did you accomplish today? List your achievements and completed activities..."
+          value={whatIDone}
+          onChange={setWhatIDone}
+          tooltip="Track your accomplishments. What did you achieve today? List your completed tasks and activities."
+          className="lg:col-span-1"
+          style={{ animationDelay: "0.1s" }}
+        />
 
         {/* Zone B: Bed Time */}
         <Card className="animate-fade-in" style={{ animationDelay: "0.15s" }}>
@@ -252,22 +229,15 @@ const Diary = () => {
         </Card>
 
         {/* Zone E: Reflection of the day */}
-        <Card className="lg:col-span-2 animate-fade-in" style={{ animationDelay: "0.25s" }}>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-primary" />
-              Reflection of the day
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              placeholder="Reflect on your day... What went well? What could be better? Any insights or gratitude?"
-              value={reflection}
-              onChange={(e) => setReflection(e.target.value)}
-              className="min-h-[100px] bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/50 resize-none"
-            />
-          </CardContent>
-        </Card>
+        <JournalEntry
+          title="Reflection of the day"
+          icon={MessageSquare}
+          placeholder="Reflect on your day... What went well? What could be better? Any insights or gratitude?"
+          value={reflection}
+          onChange={setReflection}
+          className="lg:col-span-1"
+          style={{ animationDelay: "0.25s" }}
+        />
       </div>
 
       {/* Floating Action Buttons */}
