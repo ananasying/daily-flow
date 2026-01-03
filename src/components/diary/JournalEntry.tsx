@@ -61,7 +61,7 @@ const JournalEntry = ({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 min-h-[180px] resize-none border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/50"
+          className="flex-1 min-h-[90px] resize-none border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/50"
         />
         <div className="flex justify-end mt-3">
           <Button
