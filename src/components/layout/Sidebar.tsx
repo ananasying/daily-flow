@@ -1,13 +1,8 @@
 import { useState } from "react";
-import { BookOpen, Heart, Briefcase, Leaf, ChevronRight, Home } from "lucide-react";
+import { BookOpen, Heart, Briefcase, Leaf, ChevronLeft, ChevronRight } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 
 const navItems = [
   { path: "/diary", label: "Diary", icon: BookOpen },
@@ -17,63 +12,37 @@ const navItems = [
 
 const Sidebar = () => {
   const location = useLocation();
-  const [isBreadcrumbOpen, setIsBreadcrumbOpen] = useState(true);
-
-  // Get current page name for breadcrumb
-  const getCurrentPageName = () => {
-    const currentItem = navItems.find(item => 
-      location.pathname === item.path || 
-      (item.path === "/diary" && location.pathname === "/")
-    );
-    return currentItem?.label || "Home";
-  };
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-16 lg:w-56 bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300">
+    <aside className={cn(
+      "fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300",
+      isCollapsed ? "w-16" : "w-56"
+    )}>
       {/* Logo */}
-      <div className="flex items-center justify-center lg:justify-start h-16 px-4 border-b border-sidebar-border">
+      <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <Leaf className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="hidden lg:block font-semibold text-sidebar-foreground">
-            Bloom
-          </span>
+          {!isCollapsed && (
+            <span className="font-semibold text-sidebar-foreground">
+              Bloom
+            </span>
+          )}
         </div>
-      </div>
-
-      {/* Collapsible Breadcrumb */}
-      <div className="px-3 pt-3">
-        <Collapsible open={isBreadcrumbOpen} onOpenChange={setIsBreadcrumbOpen}>
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-between text-xs text-muted-foreground hover:text-foreground"
-            >
-              <span className="hidden lg:flex items-center gap-1.5">
-                <Home className="w-3 h-3" />
-                <ChevronRight className="w-3 h-3" />
-                <span>{getCurrentPageName()}</span>
-              </span>
-              <ChevronRight className={cn(
-                "w-3 h-3 transition-transform duration-200",
-                isBreadcrumbOpen && "rotate-90"
-              )} />
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-1 space-y-1 animate-accordion-down">
-            {navItems.map((item) => (
-              <NavLink key={item.path} to={item.path}>
-                <div className="hidden lg:flex items-center gap-1.5 px-2 py-1 text-xs text-muted-foreground hover:text-foreground rounded transition-colors">
-                  <span className="w-3 h-3" />
-                  <ChevronRight className="w-3 h-3" />
-                  <span>{item.label}</span>
-                </div>
-              </NavLink>
-            ))}
-          </CollapsibleContent>
-        </Collapsible>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
+        </Button>
       </div>
 
       {/* Navigation */}
@@ -87,12 +56,13 @@ const Sidebar = () => {
               <Button
                 variant={isActive ? "navActive" : "nav"}
                 className={cn(
-                  "w-full justify-center lg:justify-start gap-3",
+                  "w-full gap-3",
+                  isCollapsed ? "justify-center" : "justify-start",
                   isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
                 )}
               >
                 <item.icon className="w-5 h-5 shrink-0" />
-                <span className="hidden lg:block">{item.label}</span>
+                {!isCollapsed && <span>{item.label}</span>}
               </Button>
             </NavLink>
           );
@@ -101,9 +71,11 @@ const Sidebar = () => {
 
       {/* Footer */}
       <div className="p-3 border-t border-sidebar-border">
-        <div className="hidden lg:block text-xs text-muted-foreground text-center">
-          Stay focused, stay calm
-        </div>
+        {!isCollapsed && (
+          <div className="text-xs text-muted-foreground text-center">
+            Stay focused, stay calm
+          </div>
+        )}
       </div>
     </aside>
   );
