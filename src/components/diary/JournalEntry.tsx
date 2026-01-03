@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Info, LucideIcon } from "lucide-react";
+import { Info, LucideIcon, Mic, MicOff } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface JournalEntryProps {
   title: string;
@@ -25,6 +27,13 @@ const JournalEntry = ({
   className = "",
   style,
 }: JournalEntryProps) => {
+  const [isRecording, setIsRecording] = useState(false);
+
+  const toggleRecording = () => {
+    setIsRecording(!isRecording);
+    console.log(isRecording ? "Stopping recording..." : "Starting recording...");
+  };
+
   return (
     <Card className={`flex flex-col h-full animate-fade-in ${className}`} style={style}>
       <CardHeader className="pb-3">
@@ -47,13 +56,36 @@ const JournalEntry = ({
           )}
         </div>
       </CardHeader>
-      <CardContent className="flex-1 pb-5">
+      <CardContent className="flex-1 pb-4 flex flex-col">
         <Textarea
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-full min-h-[180px] resize-none border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/50"
+          className="flex-1 min-h-[180px] resize-none border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/50"
         />
+        <div className="flex justify-end mt-3">
+          <Button
+            variant={isRecording ? "destructive" : "outline"}
+            size="sm"
+            onClick={toggleRecording}
+            className={cn(
+              "gap-2",
+              isRecording && "animate-pulse"
+            )}
+          >
+            {isRecording ? (
+              <>
+                <MicOff className="w-3.5 h-3.5" />
+                Stop
+              </>
+            ) : (
+              <>
+                <Mic className="w-3.5 h-3.5" />
+                Dictate
+              </>
+            )}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
