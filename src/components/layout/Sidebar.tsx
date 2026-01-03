@@ -1,7 +1,13 @@
-import { BookOpen, Heart, Briefcase, Leaf } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, Heart, Briefcase, Leaf, ChevronRight, Home } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const navItems = [
   { path: "/diary", label: "Diary", icon: BookOpen },
@@ -11,6 +17,16 @@ const navItems = [
 
 const Sidebar = () => {
   const location = useLocation();
+  const [isBreadcrumbOpen, setIsBreadcrumbOpen] = useState(true);
+
+  // Get current page name for breadcrumb
+  const getCurrentPageName = () => {
+    const currentItem = navItems.find(item => 
+      location.pathname === item.path || 
+      (item.path === "/diary" && location.pathname === "/")
+    );
+    return currentItem?.label || "Home";
+  };
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-16 lg:w-56 bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300">
@@ -24,6 +40,40 @@ const Sidebar = () => {
             Bloom
           </span>
         </div>
+      </div>
+
+      {/* Collapsible Breadcrumb */}
+      <div className="px-3 pt-3">
+        <Collapsible open={isBreadcrumbOpen} onOpenChange={setIsBreadcrumbOpen}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-between text-xs text-muted-foreground hover:text-foreground"
+            >
+              <span className="hidden lg:flex items-center gap-1.5">
+                <Home className="w-3 h-3" />
+                <ChevronRight className="w-3 h-3" />
+                <span>{getCurrentPageName()}</span>
+              </span>
+              <ChevronRight className={cn(
+                "w-3 h-3 transition-transform duration-200",
+                isBreadcrumbOpen && "rotate-90"
+              )} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-1 space-y-1 animate-accordion-down">
+            {navItems.map((item) => (
+              <NavLink key={item.path} to={item.path}>
+                <div className="hidden lg:flex items-center gap-1.5 px-2 py-1 text-xs text-muted-foreground hover:text-foreground rounded transition-colors">
+                  <span className="w-3 h-3" />
+                  <ChevronRight className="w-3 h-3" />
+                  <span>{item.label}</span>
+                </div>
+              </NavLink>
+            ))}
+          </CollapsibleContent>
+        </Collapsible>
       </div>
 
       {/* Navigation */}
