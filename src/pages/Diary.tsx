@@ -12,9 +12,12 @@ import {
   Save, 
   Moon, 
   Info, 
-  Tv, 
   CheckSquare, 
-  PenLine 
+  ListChecks,
+  MessageSquare,
+  Mic,
+  MicOff,
+  Sun
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,12 +37,14 @@ const initialTodos: TodoItem[] = [
 
 const Diary = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [bedTime, setBedTime] = useState("7");
+  const [sleepTime, setSleepTime] = useState("22:00");
+  const [wakeTime, setWakeTime] = useState("06:00");
   const [todos, setTodos] = useState<TodoItem[]>(initialTodos);
+  const [whatIDone, setWhatIDone] = useState("");
   const [reflection, setReflection] = useState("");
-  const [watchedContent, setWatchedContent] = useState("");
   const [newTodo, setNewTodo] = useState("");
   const [showNewTodoInput, setShowNewTodoInput] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   const toggleTodo = (id: string) => {
     setTodos(todos.map(todo => 
@@ -60,8 +65,33 @@ const Diary = () => {
   };
 
   const handleSave = () => {
-    console.log("Saving...", { date, bedTime, todos, reflection, watchedContent });
+    console.log("Saving...", { date, sleepTime, wakeTime, todos, whatIDone, reflection });
     // Here you would save to backend
+  };
+
+  const toggleRecording = () => {
+    setIsRecording(!isRecording);
+    // Here you would implement actual voice recording
+    console.log(isRecording ? "Stopping recording..." : "Starting recording...");
+  };
+
+  // Calculate sleep duration
+  const calculateSleepDuration = () => {
+    const [sleepH, sleepM] = sleepTime.split(":").map(Number);
+    const [wakeH, wakeM] = wakeTime.split(":").map(Number);
+    
+    let sleepMinutes = sleepH * 60 + sleepM;
+    let wakeMinutes = wakeH * 60 + wakeM;
+    
+    if (wakeMinutes < sleepMinutes) {
+      wakeMinutes += 24 * 60; // Add 24 hours if wake time is next day
+    }
+    
+    const durationMinutes = wakeMinutes - sleepMinutes;
+    const hours = Math.floor(durationMinutes / 60);
+    const minutes = durationMinutes % 60;
+    
+    return `${hours}h ${minutes}m`;
   };
 
   return (
@@ -85,13 +115,13 @@ const Diary = () => {
           </CardContent>
         </Card>
 
-        {/* Zone D: Reflection (Large, spans 2 rows on lg) */}
+        {/* Zone D: What I Done (Large, spans 2 rows on lg) */}
         <Card className="lg:col-span-2 lg:row-span-2 flex flex-col animate-fade-in" style={{ animationDelay: "0.1s" }}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
-                <PenLine className="w-4 h-4 text-primary" />
-                Reflection of the day
+                <ListChecks className="w-4 h-4 text-primary" />
+                What I Done
               </CardTitle>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -101,8 +131,8 @@ const Diary = () => {
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="max-w-xs text-sm">
-                    Write freely about your day. What went well? 
-                    What could be better? Any insights or gratitude?
+                    Track your accomplishments. What did you achieve today? 
+                    List your completed tasks and activities.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -110,9 +140,9 @@ const Diary = () => {
           </CardHeader>
           <CardContent className="flex-1 pb-5">
             <Textarea
-              placeholder="How was your day? What are you grateful for? Any lessons learned?"
-              value={reflection}
-              onChange={(e) => setReflection(e.target.value)}
+              placeholder="What did you accomplish today? List your achievements and completed activities..."
+              value={whatIDone}
+              onChange={(e) => setWhatIDone(e.target.value)}
               className="min-h-[200px] lg:min-h-[300px] resize-none border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/50"
             />
           </CardContent>
@@ -126,30 +156,38 @@ const Diary = () => {
               Bed Time
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-3">
-              <Input
-                type="number"
-                min="0"
-                max="24"
-                value={bedTime}
-                onChange={(e) => setBedTime(e.target.value)}
-                className="w-20 text-center text-lg font-medium"
-              />
-              <span className="text-muted-foreground">hours slept</span>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Moon className="w-3 h-3" />
+                  Go to bed
+                </label>
+                <Input
+                  type="time"
+                  value={sleepTime}
+                  onChange={(e) => setSleepTime(e.target.value)}
+                  className="text-center font-medium"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Sun className="w-3 h-3" />
+                  Wake up
+                </label>
+                <Input
+                  type="time"
+                  value={wakeTime}
+                  onChange={(e) => setWakeTime(e.target.value)}
+                  className="text-center font-medium"
+                />
+              </div>
             </div>
-            <div className="mt-3 flex gap-2">
-              {["6", "7", "8", "9"].map((hours) => (
-                <Button
-                  key={hours}
-                  variant={bedTime === hours ? "sage" : "outline"}
-                  size="sm"
-                  onClick={() => setBedTime(hours)}
-                  className="flex-1"
-                >
-                  {hours}h
-                </Button>
-              ))}
+            <div className="pt-2 border-t border-border/50">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Total sleep</span>
+                <span className="text-lg font-semibold text-primary">{calculateSleepDuration()}</span>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -213,23 +251,46 @@ const Diary = () => {
           </CardContent>
         </Card>
 
-        {/* Zone E: Content Log */}
+        {/* Zone E: Reflection of the day */}
         <Card className="lg:col-span-2 animate-fade-in" style={{ animationDelay: "0.25s" }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Tv className="w-4 h-4 text-primary" />
-              What I watched
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-primary" />
+                Reflection of the day
+              </CardTitle>
+              <Button
+                variant={isRecording ? "destructive" : "outline"}
+                size="sm"
+                onClick={toggleRecording}
+                className={cn(
+                  "gap-2 transition-all",
+                  isRecording && "animate-pulse"
+                )}
+              >
+                {isRecording ? (
+                  <>
+                    <MicOff className="w-4 h-4" />
+                    Stop
+                  </>
+                ) : (
+                  <>
+                    <Mic className="w-4 h-4" />
+                    Record
+                  </>
+                )}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <Input
-              placeholder="Movies, shows, videos, podcasts..."
-              value={watchedContent}
-              onChange={(e) => setWatchedContent(e.target.value)}
-              className="bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/50"
+            <Textarea
+              placeholder="Reflect on your day... What went well? What could be better? Any insights or gratitude?"
+              value={reflection}
+              onChange={(e) => setReflection(e.target.value)}
+              className="min-h-[100px] bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/50 resize-none"
             />
             <p className="mt-2 text-xs text-muted-foreground">
-              Track your media consumption to stay mindful
+              Click the record button to speak your reflection
             </p>
           </CardContent>
         </Card>
