@@ -219,6 +219,7 @@ const Diary = () => {
             onChange={setWhatIDone}
             tooltip="Track your accomplishments. What did you achieve today?"
             style={{ animationDelay: "0.05s" }}
+            className="h-[200px]"
           />
 
           <JournalEntry
