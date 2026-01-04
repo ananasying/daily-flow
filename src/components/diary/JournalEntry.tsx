@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Info, LucideIcon, Mic, MicOff } from "lucide-react";
+import { Info, LucideIcon, Mic, MicOff, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import ImproveSuggestionsDialog from "./ImproveSuggestionsDialog";
 
 interface JournalEntryProps {
   title: string;
@@ -28,10 +31,58 @@ const JournalEntry = ({
   style,
 }: JournalEntryProps) => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isImproving, setIsImproving] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const { toast } = useToast();
 
   const toggleRecording = () => {
     setIsRecording(!isRecording);
     console.log(isRecording ? "Stopping recording..." : "Starting recording...");
+  };
+
+  const handleImprove = async () => {
+    if (!value.trim()) {
+      toast({
+        title: "No text to improve",
+        description: "Please write something first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsImproving(true);
+    setShowSuggestions(true);
+    setSuggestions([]);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('improve-text', {
+        body: { text: value },
+      });
+
+      if (error) throw error;
+
+      setSuggestions(data.suggestions || []);
+    } catch (error) {
+      console.error('Error improving text:', error);
+      toast({
+        title: "Failed to improve text",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+      setShowSuggestions(false);
+    } finally {
+      setIsImproving(false);
+    }
+  };
+
+  const handleSelectSuggestion = (suggestion: string) => {
+    onChange(suggestion);
+    setShowSuggestions(false);
+    toast({
+      title: "Text updated",
+      description: "Your text has been replaced with the selected suggestion.",
+    });
   };
 
   return (
@@ -63,7 +114,17 @@ const JournalEntry = ({
           onChange={(e) => onChange(e.target.value)}
           className="flex-1 min-h-[32px] resize-none border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary/50"
         />
-        <div className="flex justify-end mt-3">
+        <div className="flex justify-end gap-2 mt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleImprove}
+            disabled={isImproving || !value.trim()}
+            className="gap-2"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Improve
+          </Button>
           <Button
             variant={isRecording ? "destructive" : "outline"}
             size="sm"
@@ -87,6 +148,14 @@ const JournalEntry = ({
           </Button>
         </div>
       </CardContent>
+
+      <ImproveSuggestionsDialog
+        open={showSuggestions}
+        onOpenChange={setShowSuggestions}
+        suggestions={suggestions}
+        isLoading={isImproving}
+        onSelectSuggestion={handleSelectSuggestion}
+      />
     </Card>
   );
 };
