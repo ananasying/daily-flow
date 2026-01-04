@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { BookOpen, Heart, Briefcase, Leaf, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, Heart, Briefcase, Leaf, ChevronLeft, ChevronRight, LayoutDashboard } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
+  { path: "/", label: "Home", icon: LayoutDashboard },
   { path: "/diary", label: "Diary", icon: BookOpen },
   { path: "/healthy", label: "Healthy", icon: Heart },
   { path: "/business", label: "Business", icon: Briefcase },
@@ -48,8 +49,7 @@ const Sidebar = () => {
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-1">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path || 
-            (item.path === "/diary" && location.pathname === "/");
+          const isActive = location.pathname === item.path;
           
           return (
             <NavLink key={item.path} to={item.path}>
